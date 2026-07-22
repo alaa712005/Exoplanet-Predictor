@@ -258,7 +258,7 @@ with st.sidebar:
     theme_toggle = st.toggle("🌙 Dark Mode (Deep Purple)", value=st.session_state.dark_mode)
     if theme_toggle != st.session_state.dark_mode:
         st.session_state.dark_mode = theme_toggle
-        st.session_state.show_balloons = False # منع أي بلالين عند تغيير الثيم
+        st.session_state.show_balloons = False
         st.rerun()
 
     st.markdown("---")
@@ -345,6 +345,7 @@ if app_mode == "🚀 Prediction Studio":
                         input_df[col] = None
                 input_df = input_df[expected_features]
                 
+                # --- التنبؤ الحقيقي هنا ---
                 pred = pipeline.predict(input_df)[0]
                 
                 if hasattr(pipeline, "predict_proba"):
@@ -353,11 +354,11 @@ if app_mode == "🚀 Prediction Studio":
                 else:
                     prob = 0.85 if pred == 1 else 0.15
 
+                # حساب الثقة الحقيقية بناءً على الموديل
                 conf_score = prob if pred == 1 else (1 - prob)
 
                 st.session_state.last_pred = pred
                 st.session_state.last_prob = prob
-                # تفعيل البلالين فقط عند الضغط الفعلي على الزر وكلاس 1
                 st.session_state.show_balloons = (pred == 1)
 
                 new_row = pd.DataFrame([{
@@ -378,7 +379,7 @@ if app_mode == "🚀 Prediction Studio":
             if st.session_state.last_pred == 1:
                 if st.session_state.show_balloons:
                     st.balloons()
-                    st.session_state.show_balloons = False # عرضها مرة واحدة فقط عند التنفيذ
+                    st.session_state.show_balloons = False
                 st.success(f"🎉 **CONFIRMED EXOPLANET DETECTED (Class {st.session_state.last_pred})!**")
                 st.markdown(f"The model confirms this signal belongs to an exoplanet with **{st.session_state.last_prob*100:.1f}% confidence**.")
             else:
@@ -440,6 +441,7 @@ elif app_mode == "📊 EDA Dashboard":
         st.markdown("""
         - **Live Tracking:** Every run is automatically pinned to the dashboard.
         - **Dataset Correlation:** Compares user inputs with Kepler/TESS standards.
+        - **Confidence Metric:** Evaluates algorithmic probability per inference.
         """)
     st.markdown('</div>', unsafe_allow_html=True)
 
